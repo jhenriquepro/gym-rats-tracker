@@ -1,0 +1,136 @@
+/* Botões */
+button {
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 16px;
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-glow);
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+}
+
+.btn-success {
+    width: 100%;
+    padding: 16px;
+    background-color: var(--color-success);
+    color: white;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.btn-text {
+    background: none;
+    color: var(--color-danger);
+    font-size: 0.9rem;
+}
+
+/* Inputs Gerais (Formulários grandes) */
+.form-group {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Select customizado com setinha CSS */
+select {
+    width: 100%;
+    padding: 16px;
+    background-color: var(--color-bg-input);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 1rem;
+    appearance: none;
+    /* Remove padrão */
+    /* Cria a seta via SVG encode */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+/* Modal */
+.modal {
+    border: none;
+    background: transparent;
+    margin: auto;
+    padding: 0;
+}
+
+.modal::backdrop {
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: var(--color-bg-surface);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    text-align: center;
+    width: 85vw;
+    max-width: 400px;
+}
+
+#btn-close-modal {
+    margin-top: var(--spacing-md);
+    background: var(--color-bg-input);
+    color: white;
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+}
+
+/* Indicador de Salvamento (Criado via JS) */
+.save-indicator {
+    position: fixed;
+    top: 75px;
+    /* Abaixo do header */
+    right: 20px;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-success);
+    color: var(--color-success);
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 1100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.save-indicator.visible {
+    opacity: 1;
+}
