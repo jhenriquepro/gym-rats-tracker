@@ -1,23 +1,22 @@
+// js/views/CreateWorkoutView.js
 import { StorageService } from '../services/StorageService.js';
 
 export class CreateWorkoutView {
     constructor() {
-        // Inputs
         this.inputName = document.getElementById('inp-plan-name');
         this.inputExName = document.getElementById('inp-new-exercise');
         this.inputExSets = document.getElementById('inp-new-sets');
-        
-        // Buttons
         this.btnAdd = document.getElementById('btn-append-exercise');
         this.form = document.getElementById('form-create-workout');
         this.btnCancel = document.getElementById('btn-cancel-create');
-        
-        // Containers
         this.previewList = document.getElementById('preview-list');
+        this.submitBtn = this.form.querySelector('button[type="submit"]'); // Captura o botão de salvar
 
-        // Estado Temporário (Lista de exercícios sendo montada)
         this.tempExercises = [];
         this.STORAGE_KEY_TEMPLATES = 'gym_rats_templates';
+
+        // [NOVO] Variável para saber se estamos editando (guarda o ID do treino)
+        this.editingId = null;
 
         this.init();
     }
@@ -26,23 +25,33 @@ export class CreateWorkoutView {
         this.attachEvents();
     }
 
+    // [NOVO] Método chamado pelo app.js quando clica no Lápis
+    loadTemplateForEditing(template) {
+        this.editingId = template.id; // Marca que estamos editando este ID
+
+        // Preenche os campos
+        this.inputName.value = template.name;
+        this.tempExercises = [...template.exercises]; // Copia os exercícios
+
+        // Muda o texto do botão para dar feedback visual
+        this.submitBtn.innerText = "ATUALIZAR TREINO";
+
+        this.renderPreview();
+    }
+
     attachEvents() {
-        // Botão "Adicionar" (Coloca na lista de baixo)
         this.btnAdd.addEventListener('click', () => this.addExerciseToPreview());
 
-        // Botão Salvar (Finaliza o cadastro)
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
             this.saveTemplate();
         });
 
-        // Botão Cancelar
         this.btnCancel.addEventListener('click', (e) => {
             e.preventDefault();
-            this.resetForm();
-            // Volta para dashboard (simulado via evento global ou callback, 
-            // mas aqui vamos apenas limpar e esconder se fosse SPA completa)
+            // Se cancelar, volta para o dashboard
             document.querySelector('[data-target="view-dashboard"]').click();
+            this.resetForm();
         });
     }
 
@@ -55,13 +64,9 @@ export class CreateWorkoutView {
             return;
         }
 
-        // Adiciona ao array temporário
         this.tempExercises.push({ name, sets });
-
-        // Renderiza na tela
         this.renderPreview();
 
-        // Limpa inputs pequenos
         this.inputExName.value = '';
         this.inputExSets.value = '';
         this.inputExName.focus();
@@ -71,14 +76,14 @@ export class CreateWorkoutView {
         this.previewList.innerHTML = '';
         this.tempExercises.forEach((ex, index) => {
             const li = document.createElement('li');
-            li.style.cssText = "background: #2c2c2e; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;";
-            
+            // Mantive seu estilo inline anterior, mas idealmente iria para o CSS
+            li.style.cssText = "background: #2c2c2e; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;";
+
             li.innerHTML = `
                 <span><strong>${ex.name}</strong> <small>(${ex.sets} séries)</small></span>
-                <button type="button" class="btn-remove-item" style="color: #ff453a; background: none; font-weight: bold;">✕</button>
+                <button type="button" class="btn-remove-item" style="color: #ff453a; background: none; font-weight: bold; cursor: pointer;">✕</button>
             `;
 
-            // Evento para remover item da lista
             li.querySelector('.btn-remove-item').addEventListener('click', () => {
                 this.tempExercises.splice(index, 1);
                 this.renderPreview();
@@ -92,7 +97,7 @@ export class CreateWorkoutView {
         const planName = this.inputName.value.trim();
 
         if (!planName) {
-            alert("Dê um nome ao seu treino (Ex: Perna).");
+            alert("Dê um nome ao seu treino.");
             return;
         }
         if (this.tempExercises.length === 0) {
@@ -100,24 +105,30 @@ export class CreateWorkoutView {
             return;
         }
 
-        // 1. Recupera templates já existentes
         const templates = StorageService.get(this.STORAGE_KEY_TEMPLATES) || [];
 
-        // 2. Cria o novo objeto modelo
-        const newTemplate = {
-            id: Date.now(),
+        const workoutData = {
+            id: this.editingId || Date.now(), // Se editando usa o ID antigo, se não, cria novo
             name: planName,
-            exercises: this.tempExercises // Array de {name, sets}
+            exercises: this.tempExercises
         };
 
-        // 3. Salva
-        templates.push(newTemplate);
+        if (this.editingId) {
+            // [NOVO] Lógica de Atualização
+            const index = templates.findIndex(t => t.id === this.editingId);
+            if (index !== -1) {
+                templates[index] = workoutData; // Substitui o antigo
+                alert("✅ Treino atualizado com sucesso!");
+            }
+        } else {
+            // Lógica de Criação Nova
+            templates.push(workoutData);
+            alert("✅ Novo treino criado com sucesso!");
+        }
+
         StorageService.save(this.STORAGE_KEY_TEMPLATES, templates);
 
-        alert("✅ Treino Salvo com Sucesso!");
         this.resetForm();
-        
-        // Redireciona para o Dashboard
         document.querySelector('[data-target="view-dashboard"]').click();
     }
 
@@ -126,6 +137,8 @@ export class CreateWorkoutView {
         this.inputExName.value = '';
         this.inputExSets.value = '';
         this.tempExercises = [];
+        this.editingId = null; // Limpa o estado de edição
+        this.submitBtn.innerText = "SALVAR TREINO"; // Volta texto original
         this.renderPreview();
     }
 }

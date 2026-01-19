@@ -325,3 +325,67 @@ select {
 .divider::after {
     margin-left: 15px;
 }
+
+/* Lista de Templates no Modal */
+.template-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    overflow: hidden;
+    /* Garante que nada saia da borda */
+}
+
+.template-item:hover {
+    border-color: var(--color-primary);
+}
+
+/* Área clicável do nome (Esquerda) */
+.template-info-btn {
+    flex: 1;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: var(--color-text-main);
+    padding: 15px;
+    font-size: 1rem;
+}
+
+/* Área dos Ícones (Direita) */
+.template-actions {
+    display: flex;
+    gap: 5px;
+    padding-right: 10px;
+}
+
+.btn-icon-action {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-edit {
+    color: var(--color-primary);
+}
+
+.btn-edit:hover {
+    background: rgba(204, 255, 0, 0.1);
+}
+
+.btn-delete {
+    color: var(--color-danger);
+}
+
+.btn-delete:hover {
+    background: rgba(255, 69, 58, 0.1);
+}

@@ -133,30 +133,69 @@ document.addEventListener('DOMContentLoaded', () => {
         modalSelect.close();
     });
 
-    // Função para preencher a lista do modal
+    // Função para preencher a lista do modal com Ícones de Ação
     function populateWorkoutList() {
         const templates = StorageService.get('gym_rats_templates') || [];
         listSaved.innerHTML = '';
 
         if (templates.length === 0) {
-            listSaved.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhum treino criado.<br>Clique em "Criar Novo Treino".</p>`;
+            listSaved.innerHTML = `<p style="text-align:center; padding: 20px; color: #888;">Nenhum treino criado.<br>Clique em "+ CRIAR NOVO TREINO".</p>`;
             return;
         }
 
         templates.forEach(template => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-secondary'; // Reutiliza estilo CSS
-            btn.style.textAlign = 'left';
-            btn.style.marginBottom = '10px';
-            btn.innerHTML = `<strong>${template.name}</strong> <span style="font-size:0.8em">(${template.exercises.length} exercícios)</span>`;
+            // Cria o container da linha (div)
+            const itemRow = document.createElement('div');
+            itemRow.className = 'template-item'; // Classe CSS nova
 
-            // CLIQUE NO TREINO DA LISTA
-            btn.addEventListener('click', () => {
+            itemRow.innerHTML = `
+                <button class="template-info-btn">
+                    <strong>${template.name}</strong> 
+                    <span style="font-size:0.8em; color: #888; margin-left: 5px;">(${template.exercises.length} ex)</span>
+                </button>
+
+                <div class="template-actions">
+                    <button class="btn-icon-action btn-edit" title="Editar">
+                        ✏️
+                    </button>
+                    <button class="btn-icon-action btn-delete" title="Excluir">
+                        🗑️
+                    </button>
+                </div>
+            `;
+
+            // EVENTO 1: Iniciar Treino (Clicar no nome)
+            itemRow.querySelector('.template-info-btn').addEventListener('click', () => {
                 modalSelect.close();
-                startWorkout(template); // Inicia fluxo
+                startWorkout(template);
             });
 
-            listSaved.appendChild(btn);
+            // EVENTO 2: Editar Treino (Clicar no Lápis)
+            itemRow.querySelector('.btn-edit').addEventListener('click', (e) => {
+                e.stopPropagation(); // Impede de iniciar o treino ao clicar no ícone
+                modalSelect.close();
+
+                // Navega para a tela de criação
+                navigateTo('view-create-workout');
+
+                // Carrega os dados para edição
+                createWorkoutView.loadTemplateForEditing(template);
+            });
+
+            // EVENTO 3: Excluir Treino (Clicar no Lixo)
+            itemRow.querySelector('.btn-delete').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm(`Tem certeza que deseja apagar o treino "${template.name}"?`)) {
+                    // Remove do array
+                    const updatedTemplates = templates.filter(t => t.id !== template.id);
+                    StorageService.save('gym_rats_templates', updatedTemplates);
+
+                    // Recarrega a lista visualmente
+                    populateWorkoutList();
+                }
+            });
+
+            listSaved.appendChild(itemRow);
         });
     }
 
