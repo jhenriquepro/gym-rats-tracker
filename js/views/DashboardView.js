@@ -5,7 +5,7 @@ export class DashboardView {
     constructor() {
         this.statsContainer = document.getElementById('dashboard-stats-container');
 
-        // Estado: Começa exibindo a data de hoje (Mês/Ano atual)
+        // Estado: Começa exibindo a data de hoje
         this.viewDate = new Date();
 
         this.init();
@@ -15,70 +15,70 @@ export class DashboardView {
         this.renderCalendar();
     }
 
-    changeMonth(offset) {
-        // Altera o mês (ex: +1 ou -1)
-        this.viewDate.setMonth(this.viewDate.getMonth() + offset);
-        this.renderCalendar(); // Redesenha a tela
-    }
-
     renderCalendar() {
-        // 1. Recupera o histórico de treinos salvos
+        // 1. Recupera histórico
         const history = StorageService.get('gym_rats_history') || [];
-
-        // Cria um Set (lista única) com as datas que tiveram treino.
-        // Formato esperado salvo no LogWorkoutView: "Sun Oct 27 2025" (toDateString)
+        // Cria lista de datas com treino (String formato "Sun Oct 27 2025")
         const workoutDates = new Set(history.map(h => h.dateString));
 
-        // 2. Configurações da Data da Visualização
-        const year = this.viewDate.getFullYear();
-        const month = this.viewDate.getMonth();
+        // 2. Dados da Visualização Atual
+        const viewYear = this.viewDate.getFullYear();
+        const viewMonth = this.viewDate.getMonth(); // 0 a 11
 
-        // Configura local para Português
-        const monthName = this.viewDate.toLocaleDateString('pt-BR', { month: 'long' });
+        // Dados auxiliares
+        const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+        const firstDayIndex = new Date(viewYear, viewMonth, 1).getDay();
 
-        // Primeiro dia do mês (0 = Domingo, 1 = Segunda...)
-        const firstDayIndex = new Date(year, month, 1).getDay();
-
-        // Total de dias no mês
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        // Data de HOJE (para marcar o dia atual com borda)
+        // Data de HOJE (para marcar o dia atual)
         const today = new Date();
-        const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+        const isCurrentMonth = today.getMonth() === viewMonth && today.getFullYear() === viewYear;
 
-        // 3. Monta o HTML
-        // Cabeçalho com Botões de Navegação
+        // --- 3. CONSTRUÇÃO DO HTML ---
+
+        // A) Construindo o Seletor de Meses
+        let monthOptions = '';
+        monthNames.forEach((name, index) => {
+            const selected = index === viewMonth ? 'selected' : '';
+            monthOptions += `<option value="${index}" ${selected}>${name}</option>`;
+        });
+
+        // B) Construindo o Seletor de Anos (2026 - 2030)
+        let yearOptions = '';
+        for (let y = 2026; y <= 2030; y++) {
+            const selected = y === viewYear ? 'selected' : '';
+            yearOptions += `<option value="${y}" ${selected}>${y}</option>`;
+        }
+
         let html = `
             <div class="calendar-wrapper">
-                <div class="calendar-header-nav">
-                    <button id="btn-prev-month" class="btn-calendar-nav">‹</button>
-                    <h3 style="text-transform: capitalize;">${monthName} <span style="color:#666">${year}</span></h3>
-                    <button id="btn-next-month" class="btn-calendar-nav">›</button>
+                
+                <div class="calendar-controls">
+                    <select id="sel-cal-month" class="inp-cal-select">
+                        ${monthOptions}
+                    </select>
+                    
+                    <select id="sel-cal-year" class="inp-cal-select">
+                        ${yearOptions}
+                    </select>
                 </div>
 
                 <div class="calendar-grid">
         `;
 
-        // Dias Vazios (Padding) antes do dia 1
+        // Dias Vazios (Padding)
         for (let i = 0; i < firstDayIndex; i++) {
             html += `<div class="calendar-day empty"></div>`;
         }
 
-        // Dias do Mês (1 a 31)
+        // Dias do Mês
         for (let i = 1; i <= daysInMonth; i++) {
-            // Cria a string de data para comparar com o histórico
-            // Nota: Precisamos criar o objeto Date corretamente para o toDateString bater
-            const dateCheck = new Date(year, month, i).toDateString();
-
-            // Verifica se TREINOU neste dia
+            const dateCheck = new Date(viewYear, viewMonth, i).toDateString();
             const hasWorkout = workoutDates.has(dateCheck);
-
-            // Verifica se é HOJE
             const isToday = isCurrentMonth && i === today.getDate();
 
-            // Define as classes CSS
             let classes = 'calendar-day';
-            if (hasWorkout) classes += ' day-active'; // <--- AQUI A MÁGICA DA COR
+            if (hasWorkout) classes += ' day-active';
             if (isToday) classes += ' day-today';
 
             html += `
@@ -99,8 +99,19 @@ export class DashboardView {
 
         this.statsContainer.innerHTML = html;
 
-        // 4. Reconecta os eventos dos botões (pois o HTML foi refeito)
-        document.getElementById('btn-prev-month').addEventListener('click', () => this.changeMonth(-1));
-        document.getElementById('btn-next-month').addEventListener('click', () => this.changeMonth(1));
+        // 4. EVENTOS DE MUDANÇA (Recarrega o calendário ao trocar opção)
+
+        const selMonth = document.getElementById('sel-cal-month');
+        const selYear = document.getElementById('sel-cal-year');
+
+        selMonth.addEventListener('change', (e) => {
+            this.viewDate.setMonth(parseInt(e.target.value));
+            this.renderCalendar(); // Redesenha
+        });
+
+        selYear.addEventListener('change', (e) => {
+            this.viewDate.setFullYear(parseInt(e.target.value));
+            this.renderCalendar(); // Redesenha
+        });
     }
 }
