@@ -351,3 +351,62 @@
     width: 100%;
     /* Ocupa todo o espaço disponível */
 }
+
+/* Cabeçalho do Calendário com Navegação */
+.calendar-header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.calendar-header-nav h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: white;
+}
+
+/* Botões de Setinha (< >) */
+.btn-calendar-nav {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-primary);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-calendar-nav:hover {
+    background: var(--color-bg-input);
+    border-color: var(--color-primary);
+}
+
+.calendar-footer {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* GARANTIA DA COR NEON (Caso não esteja aparecendo) */
+.calendar-day.day-active {
+    background-color: rgba(204, 255, 0, 0.2) !important;
+    /* Fundo Verde Transparente */
+    border: 1px solid var(--color-primary) !important;
+    /* Borda Verde Neon */
+    color: white !important;
+    text-shadow: 0 0 5px var(--color-primary);
+    font-weight: bold;
+}
+
+.calendar-day.empty {
+    background: transparent;
+    border: none;
+}
