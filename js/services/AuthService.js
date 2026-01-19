@@ -2,11 +2,11 @@
 
 // Importa as funções oficiais do Firebase via CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    getAuth, 
-    signInWithPopup, 
-    GoogleAuthProvider, 
-    signOut, 
+import {
+    getAuth,
+    signInWithPopup,
+    GoogleAuthProvider,
+    signOut,
     onAuthStateChanged,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword
@@ -20,7 +20,7 @@ const firebaseConfig = {
     storageBucket: "gym-rats-6cc81.firebasestorage.app",
     messagingSenderId: "221626713042",
     appId: "1:221626713042:web:b8099fafb23b6cd9597e0b"
-  };
+};
 
 // Inicializa o Firebase
 let app, auth, googleProvider;
@@ -50,18 +50,23 @@ export class AuthService {
     // Login com Email/Senha
     static async loginEmail(email, password) {
         try {
-            // Tenta logar
             const result = await signInWithEmailAndPassword(auth, email, password);
             return result.user;
         } catch (error) {
-            // Se usuário não existe (código específico), tenta criar a conta automaticamente
+            console.log("Erro login:", error.code); // Para debug
+
+            // [ATUALIZAÇÃO] Adicionado 'auth/invalid-credential' na verificação
             if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                const confirmCreate = confirm("Usuário não encontrado. Deseja criar uma nova conta com este e-mail?");
+
+                // Vamos tentar criar a conta direto OU perguntar
+                // Como invalid-credential pode ser senha errada também, o ideal é avisar:
+                const confirmCreate = confirm("Login falhou (Senha errada ou Usuário inexistente).\nDeseja CRIAR uma nova conta com este e-mail?");
+
                 if (confirmCreate) {
                     return this.registerEmail(email, password);
                 }
             }
-            throw error;
+            throw error; // Se não for isso, joga o erro pra frente
         }
     }
 
@@ -89,7 +94,7 @@ export class AuthService {
     // Observador (Ouve se o usuário logou ou deslogou)
     static onStateChanged(callback) {
         if (!auth) return;
-        
+
         onAuthStateChanged(auth, (user) => {
             callback(user);
         });

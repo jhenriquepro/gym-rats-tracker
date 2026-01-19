@@ -325,3 +325,48 @@ select {
 .divider::after {
     margin-left: 15px;
 }
+
+/* --- CORREÇÃO DO TÍTULO DO MODAL --- */
+/* Força qualquer título dentro de um modal a ser branco */
+.modal h3,
+.modal-header h3,
+#modal-select-template h3 {
+    color: white !important;
+}
+
+/* --- CORREÇÃO DE TEXTO VAZANDO (WORD WRAP) --- */
+
+/* Ajuste na Lista de Seleção de Treino (Teste 2.jpeg) */
+.template-info-btn {
+    /* Permite que o texto quebre para a linha de baixo */
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+
+    /* Garante alinhamento */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    line-height: 1.2;
+}
+
+/* Ajuste no Preview da Criação (Teste 1.jpeg) */
+#preview-list li {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+#preview-list li span {
+    display: block;
+    /* Garante que o span ocupe a linha */
+    max-width: 85%;
+    /* Deixa espaço para o botão X */
+}
+
+/* Garante que o input de Séries não tenha setinhas chatas de aumentar/diminuir */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

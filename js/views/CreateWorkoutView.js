@@ -22,7 +22,83 @@ export class CreateWorkoutView {
     }
 
     init() {
+        // [NOVO] Define limites HTML para impedir digitação excessiva
+        this.inputName.setAttribute('maxlength', '25'); // Nome do Treino
+        this.inputExName.setAttribute('maxlength', '50'); // Nome do Exercício
+        this.inputExSets.setAttribute('max', '30');       // Máximo input numérico
+        this.inputExSets.setAttribute('min', '1');
+
         this.attachEvents();
+    }
+
+    addExerciseToPreview() {
+        const name = this.inputExName.value.trim();
+        const setsVal = this.inputExSets.value;
+        const sets = parseInt(setsVal);
+
+        // 1. VALIDAÇÃO DE NOME (Limite de 50 caracteres)
+        if (!name) {
+            alert("Digite o nome do exercício.");
+            return;
+        }
+        if (name.length > 50) {
+            alert("O nome do exercício deve ter no máximo 50 caracteres.");
+            return;
+        }
+
+        // 2. VALIDAÇÃO DE SÉRIES (Apenas números entre 1 e 30)
+        // O regex /^\d+$/ garante que só tem dígitos, sem letras ou símbolos
+        if (!/^\d+$/.test(setsVal) || isNaN(sets) || sets < 1 || sets > 30) {
+            alert("O número de séries deve ser entre 1 e 30.");
+            return;
+        }
+
+        this.tempExercises.push({ name, sets });
+        this.renderPreview();
+
+        this.inputExName.value = '';
+        this.inputExSets.value = '';
+        this.inputExName.focus();
+    }
+
+    saveTemplate() {
+        const planName = this.inputName.value.trim();
+
+        // VALIDAÇÃO NOME DO TREINO (Máximo 25)
+        if (!planName) {
+            alert("Dê um nome ao seu treino.");
+            return;
+        }
+        if (planName.length > 25) {
+            alert("O nome do treino deve ter no máximo 25 caracteres.");
+            return;
+        }
+
+        if (this.tempExercises.length === 0) {
+            alert("Adicione pelo menos um exercício.");
+            return;
+        }
+
+        // ... (O resto da função saveTemplate continua igual ao anterior)
+        const templates = StorageService.get(this.STORAGE_KEY_TEMPLATES) || [];
+        const workoutData = {
+            id: this.editingId || Date.now(),
+            name: planName,
+            exercises: this.tempExercises
+        };
+
+        if (this.editingId) {
+            const index = templates.findIndex(t => t.id === this.editingId);
+            if (index !== -1) templates[index] = workoutData;
+            alert("✅ Treino atualizado!");
+        } else {
+            templates.push(workoutData);
+            alert("✅ Treino criado!");
+        }
+
+        StorageService.save(this.STORAGE_KEY_TEMPLATES, templates);
+        this.resetForm();
+        document.querySelector('[data-target="view-dashboard"]').click();
     }
 
     // [NOVO] Método chamado pelo app.js quando clica no Lápis
