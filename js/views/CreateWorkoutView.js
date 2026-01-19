@@ -25,11 +25,11 @@ export class CreateWorkoutView {
         // Define limites visuais no HTML
         this.inputName.setAttribute('maxlength', '25'); // Nome Treino (MÁX 25)
         this.inputExName.setAttribute('maxlength', '50'); // Nome Exercício (MÁX 50)
-        
+
         // [CORREÇÃO] Limite visual de Séries alterado para 10
-        this.inputExSets.setAttribute('max', '10');       
+        this.inputExSets.setAttribute('max', '10');
         this.inputExSets.setAttribute('min', '1');
-        
+
         this.attachEvents();
     }
 
@@ -38,30 +38,27 @@ export class CreateWorkoutView {
         const setsVal = this.inputExSets.value;
         const sets = parseInt(setsVal);
 
-        // Mensagem de Erro Unificada (Exatamente como solicitado)
+        // Mensagem padrão solicitada
         const errorMsg = "Máximo de 30 caracteres para nome do treino, máximo de 50 para nome do exercício e máximo de 10 séries";
 
-        // 1. Validação de NOME DO EXERCÍCIO
-        if (!name) {
-            alert("Digite o nome do exercício.");
-            return;
-        }
-        if (name.length > 50) {
-            alert(errorMsg); // Usa a mensagem padrão
+        // 1. Validação de Nome
+        if (!name) { alert("Digite o nome do exercício."); return; }
+        if (name.length > 50) { alert(errorMsg); return; }
+
+        // 2. Validação de Séries (Bloqueio ao INCLUIR)
+        if (!setsVal || isNaN(sets) || sets < 1 || sets > 10) {
+            alert(errorMsg); // Dispara o alerta se for maior que 10
+
+            // [UX] Limpa o campo errado e foca nele para o usuário arrumar
+            this.inputExSets.value = '';
+            this.inputExSets.focus();
             return;
         }
 
-        // 2. Validação de SÉRIES (Bloqueio Rigoroso)
-        // Verifica se: não é número, ou menor que 1, ou MAIOR QUE 10
-        if (!/^\d+$/.test(setsVal) || isNaN(sets) || sets < 1 || sets > 10) {
-            alert(errorMsg); // Usa a mensagem padrão
-            return; // PARA TUDO AQUI, não adiciona na lista
-        }
-
-        // Se passou, adiciona
         this.tempExercises.push({ name, sets });
         this.renderPreview();
 
+        // Limpa campos para o próximo
         this.inputExName.value = '';
         this.inputExSets.value = '';
         this.inputExName.focus();
@@ -69,24 +66,29 @@ export class CreateWorkoutView {
 
     saveTemplate() {
         const planName = this.inputName.value.trim();
+        const errorMsg = "Máximo de 30 caracteres para nome do treino, máximo de 50 para nome do exercício e máximo de 10 séries";
 
-        // VALIDAÇÃO NOME DO TREINO (Máximo 25)
-        if (!planName) {
-            alert("Dê um nome ao seu treino.");
-            return;
-        }
-        if (planName.length > 25) {
-            alert("O nome do treino deve ter no máximo 25 caracteres.");
-            return;
-        }
+        // 1. Validação do Nome do Treino
+        if (!planName) { alert("Dê um nome ao seu treino."); return; }
+        if (planName.length > 25) { alert(errorMsg); return; } // Valida nome > 25
 
+        // 2. Validação de Lista Vazia
         if (this.tempExercises.length === 0) {
             alert("Adicione pelo menos um exercício.");
             return;
         }
 
-        // ... (O resto da função saveTemplate continua igual ao anterior)
+        // 3. [NOVO] Varredura de Segurança Final (Bloqueio ao SALVAR)
+        // Caso algum exercício com 35 séries tenha passado (por bug ou edição), barramos aqui.
+        const temExercicioErrado = this.tempExercises.some(ex => ex.sets > 10);
+        if (temExercicioErrado) {
+            alert(`Não foi possível salvar!\n\n${errorMsg}\n\nVerifique a lista de exercícios.`);
+            return; // Impede o salvamento
+        }
+
+        // Se chegou aqui, está tudo seguro. Prossegue com o salvamento...
         const templates = StorageService.get(this.STORAGE_KEY_TEMPLATES) || [];
+
         const workoutData = {
             id: this.editingId || Date.now(),
             name: planName,
@@ -96,13 +98,14 @@ export class CreateWorkoutView {
         if (this.editingId) {
             const index = templates.findIndex(t => t.id === this.editingId);
             if (index !== -1) templates[index] = workoutData;
-            alert("✅ Treino atualizado!");
+            alert("✅ Treino atualizado com sucesso!");
         } else {
             templates.push(workoutData);
-            alert("✅ Treino criado!");
+            alert("✅ Novo treino criado com sucesso!");
         }
 
         StorageService.save(this.STORAGE_KEY_TEMPLATES, templates);
+
         this.resetForm();
         document.querySelector('[data-target="view-dashboard"]').click();
     }
