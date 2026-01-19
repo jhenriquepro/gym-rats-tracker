@@ -338,17 +338,41 @@ select {
 
 /* Ajuste na Lista de Seleção de Treino (Teste 2.jpeg) */
 .template-info-btn {
-    /* Permite que o texto quebre para a linha de baixo */
+    /* 1. Força Fundo Transparente (Corrige o quadrado branco) */
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    /* 2. Estilo do Texto */
+    color: var(--color-text-main) !important;
+    /* Texto Branco */
+    text-align: left;
+    font-size: 1rem;
+    padding: 15px;
+    flex: 1;
+    /* Ocupa o espaço disponível */
+
+    /* 3. Quebra de Linha (Para nomes longos não vazarem) */
     white-space: normal !important;
     word-break: break-word;
     overflow-wrap: break-word;
 
-    /* Garante alinhamento */
+    /* 4. Alinhamento */
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
-    line-height: 1.2;
+    line-height: 1.3;
+
+    /* Remove estilos nativos chatos de botões mobile */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Garante que os filhos (Strong/Span) também não tenham fundo */
+.template-info-btn * {
+    background: transparent !important;
 }
 
 /* Ajuste no Preview da Criação (Teste 1.jpeg) */

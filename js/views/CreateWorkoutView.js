@@ -23,9 +23,9 @@ export class CreateWorkoutView {
 
     init() {
         // [NOVO] Define limites HTML para impedir digitação excessiva
-        this.inputName.setAttribute('maxlength', '25'); // Nome do Treino
+        this.inputName.setAttribute('maxlength', '30'); // Nome do Treino
         this.inputExName.setAttribute('maxlength', '50'); // Nome do Exercício
-        this.inputExSets.setAttribute('max', '30');       // Máximo input numérico
+        this.inputExSets.setAttribute('max', '2');       // Máximo input numérico
         this.inputExSets.setAttribute('min', '1');
 
         this.attachEvents();
