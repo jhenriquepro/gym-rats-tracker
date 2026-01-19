@@ -22,12 +22,14 @@ export class CreateWorkoutView {
     }
 
     init() {
-        // [NOVO] Define limites HTML para impedir digitação excessiva
-        this.inputName.setAttribute('maxlength', '30'); // Nome do Treino
-        this.inputExName.setAttribute('maxlength', '50'); // Nome do Exercício
-        this.inputExSets.setAttribute('max', '2');       // Máximo input numérico
+        // Define limites visuais no HTML
+        this.inputName.setAttribute('maxlength', '25'); // Nome Treino (MÁX 25)
+        this.inputExName.setAttribute('maxlength', '50'); // Nome Exercício (MÁX 50)
+        
+        // [CORREÇÃO] Limite visual de Séries alterado para 10
+        this.inputExSets.setAttribute('max', '10');       
         this.inputExSets.setAttribute('min', '1');
-
+        
         this.attachEvents();
     }
 
@@ -36,23 +38,27 @@ export class CreateWorkoutView {
         const setsVal = this.inputExSets.value;
         const sets = parseInt(setsVal);
 
-        // 1. VALIDAÇÃO DE NOME (Limite de 50 caracteres)
+        // Mensagem de Erro Unificada (Exatamente como solicitado)
+        const errorMsg = "Máximo de 30 caracteres para nome do treino, máximo de 50 para nome do exercício e máximo de 10 séries";
+
+        // 1. Validação de NOME DO EXERCÍCIO
         if (!name) {
             alert("Digite o nome do exercício.");
             return;
         }
         if (name.length > 50) {
-            alert("O nome do exercício deve ter no máximo 50 caracteres.");
+            alert(errorMsg); // Usa a mensagem padrão
             return;
         }
 
-        // 2. VALIDAÇÃO DE SÉRIES (Apenas números entre 1 e 30)
-        // O regex /^\d+$/ garante que só tem dígitos, sem letras ou símbolos
-        if (!/^\d+$/.test(setsVal) || isNaN(sets) || sets < 1 || sets > 30) {
-            alert("O número de séries deve ser entre 1 e 30.");
-            return;
+        // 2. Validação de SÉRIES (Bloqueio Rigoroso)
+        // Verifica se: não é número, ou menor que 1, ou MAIOR QUE 10
+        if (!/^\d+$/.test(setsVal) || isNaN(sets) || sets < 1 || sets > 10) {
+            alert(errorMsg); // Usa a mensagem padrão
+            return; // PARA TUDO AQUI, não adiciona na lista
         }
 
+        // Se passou, adiciona
         this.tempExercises.push({ name, sets });
         this.renderPreview();
 
